@@ -9,6 +9,8 @@ secretGenerator:
 configMapGenerator:
   - files:
       - configmap.yaml
+  - envs:
+      - test.env
 patches:
   - path: patch.yaml
   - patch: |
