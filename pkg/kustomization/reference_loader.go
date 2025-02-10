@@ -6,7 +6,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/charmbracelet/log"
 	"sigs.k8s.io/kustomize/api/provider"
@@ -94,9 +93,11 @@ func (l *ReferenceLoader) walk(baseDir, path string) error {
 		}
 
 		for _, exclude := range l.Excludes {
-			if matched, _ := filepath.Match(exclude, strings.TrimPrefix(path, baseDir)); matched {
-				log.Debug("Skipping path", "path", path, "exclude", exclude)
-				return nil
+			if relativePath, err := filepath.Rel(baseDir, path); err == nil {
+				if matched, _ := filepath.Match(exclude, relativePath); matched {
+					log.Debug("Skipping path", "path", path, "exclude", exclude)
+					return nil
+				}
 			}
 
 			if matched, _ := filepath.Match(exclude, path); matched {
