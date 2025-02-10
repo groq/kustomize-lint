@@ -46,6 +46,7 @@ type LintCmd struct {
 }
 
 func (cmd *LintCmd) Run(globals *Globals) error {
+	cmd.Excludes = append(cmd.Excludes, "README.md", ".gitignore")
 	referenceLoader := kustomization.NewReferenceLoader(cmd.Excludes...)
 
 	if err := referenceLoader.Validate(cmd.Path); err != nil {
