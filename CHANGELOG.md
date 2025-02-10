@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/groq/kustomize-lint/compare/v0.3.1...v0.3.2) (2025-02-10)
+
+
+### Bug Fixes
+
+* exclude paths directly from base dir ([040d909](https://github.com/groq/kustomize-lint/commit/040d90904c70ce08366c04584b9e97f26bd3ba2b))
+
 ## [0.3.1](https://github.com/groq/kustomize-lint/compare/v0.3.0...v0.3.1) (2025-02-10)
 
 
