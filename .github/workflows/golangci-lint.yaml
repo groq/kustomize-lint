@@ -1,0 +1,20 @@
+# ./.github/workflows/golangci-lint.yml
+name: golangci-lint (multi OS)
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  golangci-lint:
+    strategy:
+      matrix:
+        go-version: [stable]
+        os: [ubuntu-latest, macos-latest]
+    uses: ./.github/workflows/.golangci-lint-reusable.yml
+    with:
+      os: ${{ matrix.os }}
+      go-version: ${{ matrix.go-version }}
+      golangci-lint-version: v1.60

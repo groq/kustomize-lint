@@ -1,0 +1,14 @@
+version: 2
+release:
+  mode: keep-existing
+builds:
+  - main: ./cmd/kustomize-lint/
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+universal_binaries:
+  - replace: true

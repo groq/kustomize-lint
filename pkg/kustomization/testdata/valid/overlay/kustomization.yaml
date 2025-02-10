@@ -1,0 +1,36 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../base
+  - file2.yaml
+secretGenerator:
+  - files:
+      - secret.yaml
+configMapGenerator:
+  - files:
+      - configmap.yaml
+patches:
+  - path: patch.yaml
+  - patch: |
+      - op: add
+        path: /spec
+        value: test
+    target:
+      kind: Deployment
+components:
+  - component.yaml
+crds:
+  - crd.yaml
+generators:
+  - generator.yaml
+validators:
+  - validator.yaml
+transformers:
+  - |-
+    apiVersion: builtin
+    kind: NamespaceTransformer
+    metadata:
+      name: NotImportantHere
+      namespace: monitoring
+    unsetOnly: true
+  - transformer.yaml
