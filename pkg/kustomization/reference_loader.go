@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/charmbracelet/log"
 	"sigs.k8s.io/kustomize/api/provider"
@@ -54,7 +55,7 @@ func (l *ReferenceLoader) Validate(path string) error {
 	}
 
 	for _, kustomization := range kustomizations {
-		err := l.walk(kustomization)
+		err := l.walk(path, kustomization)
 		if err != nil {
 			return err
 		}
@@ -80,7 +81,7 @@ func (l *ReferenceLoader) Validate(path string) error {
 	return errors.Join(errs...)
 }
 
-func (l *ReferenceLoader) walk(path string) error {
+func (l *ReferenceLoader) walk(baseDir, path string) error {
 	dir := filepath.Dir(path)
 
 	l.referencedFiles[path] = true
@@ -93,6 +94,11 @@ func (l *ReferenceLoader) walk(path string) error {
 		}
 
 		for _, exclude := range l.Excludes {
+			if matched, _ := filepath.Match(exclude, strings.TrimPrefix(path, baseDir)); matched {
+				log.Debug("Skipping path", "path", path, "exclude", exclude)
+				return nil
+			}
+
 			if matched, _ := filepath.Match(exclude, path); matched {
 				log.Debug("Skipping path", "path", path, "exclude", exclude)
 				return nil
@@ -165,7 +171,7 @@ func (l *ReferenceLoader) walk(path string) error {
 					continue
 				}
 
-				err := l.walk(p)
+				err := l.walk(baseDir, p)
 				if err != nil {
 					return fmt.Errorf("failed to load kustomization %q: %v", r, err)
 				}
