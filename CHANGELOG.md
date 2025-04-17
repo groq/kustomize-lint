@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/groq/kustomize-lint/compare/v0.3.2...v0.3.3) (2025-04-17)
+
+
+### Bug Fixes
+
+* handle git/http references properly ([c7ea550](https://github.com/groq/kustomize-lint/commit/c7ea5503a1610d67ccd53d715b0994f1dab27cf6))
+
 ## [0.3.2](https://github.com/groq/kustomize-lint/compare/v0.3.1...v0.3.2) (2025-02-10)
 
 
