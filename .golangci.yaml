@@ -1,18 +1,22 @@
+version: "2"
+
 run:
   timeout: 5m
   concurrency: 8
   tests: true
 
+formatters:
+  enable:
+    - goimports
+
 linters:
-  disable-all: true
+  default: none
   enable:
     - asasalint
     - asciicheck
     - bidichk
     - errcheck
-    - goimports
     - gosec
-    - gosimple
     - govet
     - ineffassign
     - intrange
