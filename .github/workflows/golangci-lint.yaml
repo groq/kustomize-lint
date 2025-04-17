@@ -17,4 +17,4 @@ jobs:
     with:
       os: ${{ matrix.os }}
       go-version: ${{ matrix.go-version }}
-      golangci-lint-version: v1.60
+      golangci-lint-version: v2.1

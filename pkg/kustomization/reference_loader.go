@@ -144,13 +144,13 @@ func (l *ReferenceLoader) walk(baseDir, path string) error {
 	files = append(files, k.Configurations...)
 
 	for _, s := range k.SecretGenerator {
-		files = append(files, s.GeneratorArgs.FileSources...)
-		files = append(files, s.GeneratorArgs.EnvSources...)
+		files = append(files, s.FileSources...)
+		files = append(files, s.EnvSources...)
 	}
 
 	for _, c := range k.ConfigMapGenerator {
-		files = append(files, c.GeneratorArgs.FileSources...)
-		files = append(files, c.GeneratorArgs.EnvSources...)
+		files = append(files, c.FileSources...)
+		files = append(files, c.EnvSources...)
 	}
 
 	for _, p := range k.Patches {
