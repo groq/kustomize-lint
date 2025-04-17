@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - ../base
   - file2.yaml
+  - https://github.com/minio/operator?ref=v7.0.1
 secretGenerator:
   - files:
       - secret.yaml

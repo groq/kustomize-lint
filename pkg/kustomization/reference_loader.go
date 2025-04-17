@@ -8,9 +8,12 @@ import (
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
+	"sigs.k8s.io/kustomize/api/pkg/loader"
 	"sigs.k8s.io/kustomize/api/provider"
 	"sigs.k8s.io/kustomize/api/resmap"
+	"sigs.k8s.io/kustomize/api/resource"
 	"sigs.k8s.io/kustomize/api/types"
+	"sigs.k8s.io/kustomize/kyaml/filesys"
 )
 
 type ReferenceLoader struct {
@@ -115,7 +118,6 @@ func (l *ReferenceLoader) walk(baseDir, path string) error {
 
 		return nil
 	})
-
 	if err != nil {
 		return fmt.Errorf("failed to walk %q: %v", dir, err)
 	}
@@ -159,14 +161,23 @@ func (l *ReferenceLoader) walk(baseDir, path string) error {
 
 	log.Debug("Found files in path", "path", path, "files", files)
 
-	for _, r := range files {
-		r = filepath.Join(dir, r)
+	for _, file := range files {
+		resource := (&resource.Origin{Path: dir}).Append(file)
 
-		if stat, err := os.Stat(r); err == nil {
+		if resource.Repo != "" {
+			ldr := loader.NewFileLoaderAtCwd(filesys.MakeFsOnDisk())
+			ll, err := ldr.New(file)
+			if err != nil {
+				return fmt.Errorf("failed to load %q: %v", file, err)
+			}
+			if err := ll.Cleanup(); err != nil {
+				return fmt.Errorf("failed to cleanup %q: %v", file, err)
+			}
+		} else if stat, err := os.Stat(resource.Path); err == nil {
 			if stat.IsDir() {
-				log.Debug("Walking directory", "path", r)
+				log.Debug("Walking directory", "path", resource.Path)
 
-				p := filepath.Join(r, "kustomization.yaml")
+				p := filepath.Join(resource.Path, "kustomization.yaml")
 
 				if l.referencedFiles[p] {
 					continue
@@ -174,18 +185,17 @@ func (l *ReferenceLoader) walk(baseDir, path string) error {
 
 				err := l.walk(baseDir, p)
 				if err != nil {
-					return fmt.Errorf("failed to load kustomization %q: %v", r, err)
+					return fmt.Errorf("failed to load kustomization %q: %v", resource.Path, err)
 				}
 			} else {
-				l.referencedFiles[r] = true
+				l.referencedFiles[resource.Path] = true
 			}
 		} else {
-			_, err := l.rf.NewResMapFromBytes([]byte(r))
+			_, err := l.rf.NewResMapFromBytes([]byte(file))
 			if err != nil {
-				log.Debug("Reference does not look like YAML, assuming it's a path", "path", r, "err", err)
-				l.referencedFiles[r] = true
+				return fmt.Errorf("reference %q cannot be loaded and does not look like YAML: %v", file, err)
 			} else {
-				log.Debug("Skipping path, looks like YAML", "path", r, "err", err)
+				log.Debug("Skipping path, looks like YAML", "path", file, "err", err)
 			}
 		}
 	}
