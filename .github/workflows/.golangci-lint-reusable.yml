@@ -18,6 +18,9 @@ on:
         type: string
         default: "v1.60"
 
+permissions:
+  contents: read
+
 jobs:
   detect-modules:
     runs-on: ${{ inputs.os }}
