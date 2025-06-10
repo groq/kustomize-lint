@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4](https://github.com/groq/kustomize-lint/compare/v0.3.3...v0.3.4) (2025-06-10)
+
+
+### Bug Fixes
+
+* specify permissions on github actions ([2b16db5](https://github.com/groq/kustomize-lint/commit/2b16db5f707ffe3a5634912090a8343c033b6ec2))
+
 ## [0.3.3](https://github.com/groq/kustomize-lint/compare/v0.3.2...v0.3.3) (2025-04-17)
 
 
