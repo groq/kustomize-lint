@@ -19,6 +19,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
       # Create packages on release creation
       - uses: actions/checkout@v4
+        ref: ${{ steps.release.outputs.tag_name }}
         if: ${{ steps.release.outputs.release_created }}
       - name: Set up Go
         uses: actions/setup-go@v5
