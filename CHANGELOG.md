@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.6](https://github.com/groq/kustomize-lint/compare/v0.3.5...v0.3.6) (2025-06-10)
+
+
+### Bug Fixes
+
+* correctly checkout the new tag during release ([4442d3e](https://github.com/groq/kustomize-lint/commit/4442d3e8e410ee2dd88e24a3483bf8e68d7eb2d4))
+* correctly checkout the new tag during release ([d29985a](https://github.com/groq/kustomize-lint/commit/d29985a338acbde1695319ba6895d8bdfc512401))
+
 ## [0.3.5](https://github.com/groq/kustomize-lint/compare/v0.3.4...v0.3.5) (2025-06-10)
 
 
