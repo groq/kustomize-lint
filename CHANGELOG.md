@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.5](https://github.com/groq/kustomize-lint/compare/v0.3.4...v0.3.5) (2025-06-10)
+
+
+### Bug Fixes
+
+* consolidate release actions due to GITHUB_TOKEN limitation ([9b15e05](https://github.com/groq/kustomize-lint/commit/9b15e055e4b451891a722ad90d58f7d06604863e))
+
 ## [0.3.4](https://github.com/groq/kustomize-lint/compare/v0.3.3...v0.3.4) (2025-06-10)
 
 
