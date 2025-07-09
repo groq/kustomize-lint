@@ -1,0 +1,28 @@
+name: Lint and Test
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cashapp/activate-hermit@v1
+        with:
+          cache: "true"
+      - name: Build
+        run: go build ./...
+      - uses: golangci/golangci-lint-action@v8
+        with:
+          install-mode: "none"
+      - name: Test
+        run: go test -v ./...
