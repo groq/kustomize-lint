@@ -5,8 +5,8 @@ go 1.23.4
 require (
 	github.com/alecthomas/kong v1.12.1
 	github.com/charmbracelet/log v0.4.2
-	sigs.k8s.io/kustomize/api v0.20.0
-	sigs.k8s.io/kustomize/kyaml v0.20.0
+	sigs.k8s.io/kustomize/api v0.20.1
+	sigs.k8s.io/kustomize/kyaml v0.20.1
 )
 
 require (
