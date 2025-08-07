@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.8](https://github.com/groq/kustomize-lint/compare/v0.3.7...v0.3.8) (2025-08-07)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/alecthomas/kong to v1.12.1 ([#26](https://github.com/groq/kustomize-lint/issues/26)) ([bee2916](https://github.com/groq/kustomize-lint/commit/bee2916bbdf650e5b7cb62cb1b206247ba6b21f8))
+* **deps:** update module sigs.k8s.io/kustomize/api to v0.20.1 ([#29](https://github.com/groq/kustomize-lint/issues/29)) ([465f56d](https://github.com/groq/kustomize-lint/commit/465f56d754623c37ec4ce32ef507779afbff6555))
+
 ## [0.3.7](https://github.com/groq/kustomize-lint/compare/v0.3.6...v0.3.7) (2025-07-12)
 
 
