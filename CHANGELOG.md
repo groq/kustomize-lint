@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.4.0](https://github.com/groq/kustomize-lint/compare/v0.3.7...v0.4.0) (2025-08-13)
+
+
+### Features
+
+* support inline ignore ([#34](https://github.com/groq/kustomize-lint/issues/34)) ([785d945](https://github.com/groq/kustomize-lint/commit/785d945b23db059378e1521f820c718033a8f6fa))
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/alecthomas/kong to v1.12.1 ([#26](https://github.com/groq/kustomize-lint/issues/26)) ([bee2916](https://github.com/groq/kustomize-lint/commit/bee2916bbdf650e5b7cb62cb1b206247ba6b21f8))
+* **deps:** update module sigs.k8s.io/kustomize/api to v0.20.1 ([#29](https://github.com/groq/kustomize-lint/issues/29)) ([465f56d](https://github.com/groq/kustomize-lint/commit/465f56d754623c37ec4ce32ef507779afbff6555))
+
 ## [0.3.7](https://github.com/groq/kustomize-lint/compare/v0.3.6...v0.3.7) (2025-07-12)
 
 
