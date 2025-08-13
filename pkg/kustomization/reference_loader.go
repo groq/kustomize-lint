@@ -1,11 +1,13 @@
 package kustomization
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/charmbracelet/log"
 	"sigs.k8s.io/kustomize/api/pkg/loader"
@@ -36,6 +38,35 @@ func NewReferenceLoader(excludes ...string) *ReferenceLoader {
 		allResources:    make(map[string]bool),
 		rf:              resmap.NewFactory(provider.NewDepProvider().GetResourceFactory()),
 	}
+}
+
+// hasInlineIgnore checks if a file contains an inline ignore comment
+func hasInlineIgnore(filepath string) bool {
+	// #nosec G304 - filepath is controlled by the application's file walking logic
+	file, err := os.Open(filepath)
+	if err != nil {
+		return false
+	}
+
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			log.Debug("Failed to close file", "path", filepath, "err", closeErr)
+		}
+	}()
+
+	scanner := bufio.NewScanner(file)
+	lineCount := 0
+	for scanner.Scan() && lineCount < 10 { // only check first 10 lines
+		line := strings.TrimSpace(scanner.Text())
+		// check for ignore syntax
+		if strings.HasPrefix(line, "#") {
+			if strings.Contains(line, "kustomize-lint:ignore") {
+				return true
+			}
+		}
+		lineCount++
+	}
+	return false
 }
 
 func (l *ReferenceLoader) Validate(path string) error {
@@ -112,6 +143,11 @@ func (l *ReferenceLoader) walk(baseDir, path string) error {
 				log.Debug("Skipping path", "path", path, "exclude", exclude)
 				return nil
 			}
+		}
+
+		if hasInlineIgnore(path) {
+			log.Debug("Skipping path due to inline ignore", "path", path)
+			return nil
 		}
 
 		l.allResources[path] = true
