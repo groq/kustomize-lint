@@ -1,0 +1,7 @@
+---
+# TODO: Re-enable this when feature is ready
+# kustomize-lint:ignore - temporarily disabled
+apiVersion: v1
+kind: Secret
+metadata:
+  name: disabled-secret
