@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/groq/kustomize-lint/compare/v0.4.0...v0.5.0) (2025-09-08)
+
+
+### Features
+
+* compare path against cleaned filepath to detect whitespace issues ([#38](https://github.com/groq/kustomize-lint/issues/38)) ([8e3ba22](https://github.com/groq/kustomize-lint/commit/8e3ba2222c934d4adc93afc89f056120c685f659))
+
 ## [0.4.0](https://github.com/groq/kustomize-lint/compare/v0.3.7...v0.4.0) (2025-08-13)
 
 
