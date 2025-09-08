@@ -22,6 +22,9 @@ type ReferenceLoader struct {
 	// Files to exclude from the search
 	Excludes []string
 
+	// StrictPathCheck enables strict path checking mode
+	StrictPathCheck bool
+
 	// All files referenced directly from within a `kustomization.yaml`
 	referencedFiles map[string]bool
 
@@ -31,9 +34,10 @@ type ReferenceLoader struct {
 	rf *resmap.Factory
 }
 
-func NewReferenceLoader(excludes ...string) *ReferenceLoader {
+func NewReferenceLoader(strictPathCheck bool, excludes ...string) *ReferenceLoader {
 	return &ReferenceLoader{
 		Excludes:        excludes,
+		StrictPathCheck: strictPathCheck,
 		referencedFiles: make(map[string]bool),
 		allResources:    make(map[string]bool),
 		rf:              resmap.NewFactory(provider.NewDepProvider().GetResourceFactory()),
@@ -210,6 +214,13 @@ func (l *ReferenceLoader) walk(baseDir, path string) error {
 				return fmt.Errorf("failed to cleanup %q: %v", file, err)
 			}
 		} else if stat, err := os.Stat(resource.Path); err == nil {
+			// fast fail on the supplied filepath not matching the cleaned filepath if strict path checking is enabled
+			// this can occur as a result of invalid whitespace in the kustomization.yaml
+			// https://github.com/kubernetes-sigs/kustomize/issues/5979
+			if l.StrictPathCheck && file != filepath.Clean(file) {
+				return fmt.Errorf("path %q does not match cleaned path '%s' in %s", file, filepath.Clean(file), path)
+			}
+
 			if stat.IsDir() {
 				log.Debug("Walking directory", "path", resource.Path)
 
