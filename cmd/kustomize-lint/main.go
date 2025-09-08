@@ -41,13 +41,14 @@ type CLI struct {
 }
 
 type LintCmd struct {
-	Path     string   `arg:"" name:"path" help:"Path to validate." type:"path"`
-	Excludes []string `name:"exclude" short:"x" help:"Exclude files matching the given glob patterns."`
+	Path            string   `arg:"" name:"path" help:"Path to validate." type:"path"`
+	Excludes        []string `name:"exclude" short:"x" help:"Exclude files matching the given glob patterns."`
+	StrictPathCheck bool     `name:"strict-path-check" short:"s" help:"Enable strict path checking mode"`
 }
 
 func (cmd *LintCmd) Run(globals *Globals) error {
 	cmd.Excludes = append(cmd.Excludes, "README.md", ".gitignore")
-	referenceLoader := kustomization.NewReferenceLoader(cmd.Excludes...)
+	referenceLoader := kustomization.NewReferenceLoader(cmd.StrictPathCheck, cmd.Excludes...)
 
 	if err := referenceLoader.Validate(cmd.Path); err != nil {
 		log.Fatal("Validation errors", "err", err)
