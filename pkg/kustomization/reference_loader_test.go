@@ -18,6 +18,7 @@ func TestReferenceLoader(t *testing.T) {
 		{name: "inline ignore", path: "testdata/inline_ignore/"},
 		{name: "strict paths enabled", path: "testdata/strict_paths/", strictPathCheck: true, wantErr: true},
 		{name: "strict paths disabled", path: "testdata/strict_paths/", strictPathCheck: false, wantErr: false},
+		{name: "KV file sources", path: "testdata/kv_file_sources/", wantErr: false},
 	}
 
 	for _, tt := range tests {
