@@ -184,12 +184,24 @@ func (l *ReferenceLoader) walk(baseDir, path string) error {
 	files = append(files, k.Configurations...)
 
 	for _, s := range k.SecretGenerator {
-		files = append(files, s.FileSources...)
+		for _, fileSource := range s.FileSources {
+			_, fileSourcePath, err := parseFileSource(fileSource)
+			if err != nil {
+				return fmt.Errorf("unable to parse file source %q: %v", fileSource, err)
+			}
+			files = append(files, fileSourcePath)
+		}
 		files = append(files, s.EnvSources...)
 	}
 
 	for _, c := range k.ConfigMapGenerator {
-		files = append(files, c.FileSources...)
+		for _, fileSource := range c.FileSources {
+			_, fileSourcePath, err := parseFileSource(fileSource)
+			if err != nil {
+				return fmt.Errorf("unable to parse file source %q: %v", fileSource, err)
+			}
+			files = append(files, fileSourcePath)
+		}
 		files = append(files, c.EnvSources...)
 	}
 
