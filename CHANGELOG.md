@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/groq/kustomize-lint/compare/v0.5.0...v0.5.1) (2025-10-07)
+
+
+### Bug Fixes
+
+* parse kv file sources correctly ([#43](https://github.com/groq/kustomize-lint/issues/43)) ([cf8127f](https://github.com/groq/kustomize-lint/commit/cf8127f0b26a6712486c4f64b001b71d529edcff))
+
 ## [0.5.0](https://github.com/groq/kustomize-lint/compare/v0.4.0...v0.5.0) (2025-09-08)
 
 
