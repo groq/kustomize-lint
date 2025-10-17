@@ -14,6 +14,7 @@ func TestReferenceLoader(t *testing.T) {
 		{name: "invalid", path: "testdata/invalid/", wantErr: true},
 		{name: "invalid references", path: "testdata/invalid_reference/", wantErr: true},
 		{name: "unreferenced file", path: "testdata/unreferenced/", wantErr: true},
+		{name: "unreferenced directory", path: "testdata/unreferenced_dir/", wantErr: true},
 		{name: "excludes", path: "testdata/unreferenced/", excludes: []string{"file3.yaml", "file4.yaml"}},
 		{name: "inline ignore", path: "testdata/inline_ignore/"},
 		{name: "strict paths enabled", path: "testdata/strict_paths/", strictPathCheck: true, wantErr: true},
