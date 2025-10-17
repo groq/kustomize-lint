@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/charmbracelet/log"
@@ -102,6 +103,7 @@ func (l *ReferenceLoader) Validate(path string) error {
 
 	log.Debug("All resources", "resources", l.allResources)
 	log.Debug("Referenced files", "files", l.referencedFiles)
+	log.Debug("Kustomizations", "kustomizations", kustomizations)
 
 	for r := range l.referencedFiles {
 		if !l.allResources[r] {
@@ -111,7 +113,24 @@ func (l *ReferenceLoader) Validate(path string) error {
 
 	for r := range l.allResources {
 		if !l.referencedFiles[r] {
-			errs = append(errs, fmt.Errorf("* resource %q not referenced", r))
+			if !slices.Contains(kustomizations, r) {
+				errs = append(errs, fmt.Errorf("* resource %q not referenced", r))
+				continue
+			}
+
+			containedInKustomization := slices.IndexFunc(kustomizations, func(k string) bool {
+				baseDir := filepath.Dir(k)
+				return k != r && strings.HasPrefix(r, baseDir+string(filepath.Separator))
+			})
+
+			if containedInKustomization != -1 {
+				log.Debug(
+					"Resource not referenced",
+					"resource", r,
+					"inKustomization", kustomizations[containedInKustomization],
+				)
+				errs = append(errs, fmt.Errorf("* resource %q not referenced", r))
+			}
 		}
 	}
 
@@ -120,8 +139,6 @@ func (l *ReferenceLoader) Validate(path string) error {
 
 func (l *ReferenceLoader) walk(baseDir, path string) error {
 	dir := filepath.Dir(path)
-
-	l.referencedFiles[path] = true
 
 	log.Debug("Walking directory", "path", dir)
 
@@ -241,6 +258,8 @@ func (l *ReferenceLoader) walk(baseDir, path string) error {
 				if l.referencedFiles[p] {
 					continue
 				}
+
+				l.referencedFiles[p] = true
 
 				err := l.walk(baseDir, p)
 				if err != nil {
