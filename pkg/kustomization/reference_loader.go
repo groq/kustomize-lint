@@ -202,6 +202,7 @@ func (l *ReferenceLoader) walk(baseDir, path string) error {
 
 	k := &types.Kustomization{}
 
+	// #nosec G304 - filepath is controlled by the application's file walking logic
 	contents, err := os.ReadFile(path)
 	if err != nil {
 		return fmt.Errorf("failed to read %q: %v", path, err)
