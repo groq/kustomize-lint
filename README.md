@@ -92,6 +92,45 @@ apiVersion: v1
 kind: ConfigMap
 ```
 
+#### Ignoring Directories
+
+To explicitly ignore directories that are not referenced, the `--exclude` (`-x`) flag can be provided or create an empty `.kustomize-lint-ignore` file within the directory.
+
+For example, with this directory structure:
+```
+$ cat kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # - ignored_dir
+$ ls
+ignored_dir  kustomization.yaml
+
+$ cat ignored_dir/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - file.yaml
+$ ls ignored_dir
+file.yaml  kustomization.yaml
+```
+
+The lint will fail:
+```
+$ kustomize-lint .
+FATA Validation errors err="* resource \"ignored_dir/kustomization.yaml\" not referenced"
+```
+
+Exclude it with a command-line flag:
+```
+$ kustomize-lint -x 'ignored_dir/*'
+```
+
+Or, by adding the `.kustomize-lint-ignore` file:
+```
+$ touch ignored_dir/.kustomize-lint-ignore
+```
+
 #### Strict File Checking
 
 To workaround [kubernetes/kustomize#5979](https://github.com/kubernetes-sigs/kustomize/issues/5979), the `--strict-path-check` (`-s`) flag will fail if a file reference does not match the output of [`filepath.Clean`](https://pkg.go.dev/path/filepath#Clean).
