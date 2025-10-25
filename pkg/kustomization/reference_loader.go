@@ -82,6 +82,12 @@ func (l *ReferenceLoader) Validate(path string) error {
 			return err
 		}
 
+		if filepath.Base(path) == ".kustomize-lint-ignore" {
+			log.Debug("Skipping directory due to ignore file", "path", path)
+			l.Excludes = append(l.Excludes, filepath.Join(filepath.Dir(path), "*"))
+			return nil
+		}
+
 		if filepath.Base(path) == "kustomization.yaml" {
 			kustomizations = append(kustomizations, path)
 		}
@@ -137,8 +143,41 @@ func (l *ReferenceLoader) Validate(path string) error {
 	return errors.Join(errs...)
 }
 
+func (l *ReferenceLoader) excludedPath(baseDir, path string) bool {
+	for _, exclude := range l.Excludes {
+		if relativePath, err := filepath.Rel(baseDir, path); err == nil {
+			if matched, _ := filepath.Match(exclude, relativePath); matched {
+				log.Debug("Skipping path", "path", path, "exclude", exclude)
+				return true
+			}
+		}
+
+		if matched, _ := filepath.Match(exclude, path); matched {
+			log.Debug("Skipping path", "path", path, "exclude", exclude)
+			return true
+		}
+
+		if matched, _ := filepath.Match(exclude, filepath.Base(path)); matched {
+			log.Debug("Skipping path", "path", path, "exclude", exclude)
+			return true
+		}
+	}
+
+	if hasInlineIgnore(path) {
+		log.Debug("Skipping path due to inline ignore", "path", path)
+		return true
+	}
+
+	return false
+}
+
 func (l *ReferenceLoader) walk(baseDir, path string) error {
 	dir := filepath.Dir(path)
+
+	if l.excludedPath(baseDir, path) {
+		log.Debug("Skipping path due to exclusion", "path", path)
+		return nil
+	}
 
 	log.Debug("Walking directory", "path", dir)
 
@@ -151,27 +190,7 @@ func (l *ReferenceLoader) walk(baseDir, path string) error {
 			return nil
 		}
 
-		for _, exclude := range l.Excludes {
-			if relativePath, err := filepath.Rel(baseDir, path); err == nil {
-				if matched, _ := filepath.Match(exclude, relativePath); matched {
-					log.Debug("Skipping path", "path", path, "exclude", exclude)
-					return nil
-				}
-			}
-
-			if matched, _ := filepath.Match(exclude, path); matched {
-				log.Debug("Skipping path", "path", path, "exclude", exclude)
-				return nil
-			}
-
-			if matched, _ := filepath.Match(exclude, filepath.Base(path)); matched {
-				log.Debug("Skipping path", "path", path, "exclude", exclude)
-				return nil
-			}
-		}
-
-		if hasInlineIgnore(path) {
-			log.Debug("Skipping path due to inline ignore", "path", path)
+		if l.excludedPath(baseDir, path) {
 			return nil
 		}
 

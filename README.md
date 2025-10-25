@@ -47,7 +47,7 @@ exit status 1
 ```
 
 The linter will also error for referenced files that do not exist:
-```
+```sh
 $ rm base/file.yaml
 
 $ kustomize-lint lint path/to/root
@@ -60,7 +60,7 @@ exit status 1
 To explicitly ignore files that are not referenced, the `--exclude` (`-x`) flag can be provided or an inline `# kustomize-lint:ignore` comment can be added to the file.
 
 For example, with this directory structure:
-```
+```sh
 $ cat kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -72,24 +72,63 @@ file.yaml  ignored_file.yaml  kustomization.yaml
 ```
 
 The lint will fail:
-```
+```sh
 $ kustomize-lint .
 FATA Validation errors err="* resource \"ignored_file.yaml\" not referenced"
 ```
 
 Exclude it with a command-line flag:
-```
+```sh
 $ kustomize-lint -x ignored_file.yaml
 ```
 
 Or, by adding the `# kustomize-lint:ignore` comment within the first 10 lines of the file:
-```
+```sh
 $ head ignored_file.yaml
 # kustomize-lint:ignore
 # This file is temporarily disabled but we want to keep it in the repo
 ---
 apiVersion: v1
 kind: ConfigMap
+```
+
+#### Ignoring Directories
+
+To explicitly ignore directories that are not referenced, the `--exclude` (`-x`) flag can be provided or create an empty `.kustomize-lint-ignore` file within the directory.
+
+For example, with this directory structure:
+```sh
+$ cat kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # - ignored_dir
+$ ls
+ignored_dir  kustomization.yaml
+
+$ cat ignored_dir/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - file.yaml
+$ ls ignored_dir
+file.yaml  kustomization.yaml
+```
+
+The lint will fail:
+```sh
+$ kustomize-lint .
+FATA Validation errors err="* resource \"ignored_dir/kustomization.yaml\" not referenced"
+```
+
+Exclude it with a command-line flag:
+```sh
+$ kustomize-lint -x 'ignored_dir/*'
+```
+
+Or, by adding the `.kustomize-lint-ignore` file:
+```sh
+$ touch ignored_dir/.kustomize-lint-ignore
 ```
 
 #### Strict File Checking
