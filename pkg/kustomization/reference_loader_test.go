@@ -8,6 +8,7 @@ func TestReferenceLoader(t *testing.T) {
 		path            string
 		excludes        []string
 		strictPathCheck bool
+		fluxSource      string
 		wantErr         bool
 	}{
 		{name: "valid", path: "testdata/valid/"},
@@ -21,11 +22,13 @@ func TestReferenceLoader(t *testing.T) {
 		{name: "strict paths enabled", path: "testdata/strict_paths/", strictPathCheck: true, wantErr: true},
 		{name: "strict paths disabled", path: "testdata/strict_paths/", strictPathCheck: false, wantErr: false},
 		{name: "KV file sources", path: "testdata/kv_file_sources/", wantErr: false},
+		{name: "flux without source", path: "testdata/flux/", wantErr: true},
+		{name: "flux with source", path: "testdata/flux/", fluxSource: "gitops", wantErr: false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := NewReferenceLoader(tt.strictPathCheck, tt.excludes...).Validate(tt.path)
+			err := NewReferenceLoader(tt.strictPathCheck, tt.fluxSource, tt.excludes...).Validate(tt.path)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Validate() error = %v, wantErr %v", err, tt.wantErr)
 			}

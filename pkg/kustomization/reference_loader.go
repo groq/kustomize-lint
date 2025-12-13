@@ -26,6 +26,9 @@ type ReferenceLoader struct {
 	// StrictPathCheck enables strict path checking mode
 	StrictPathCheck bool
 
+	// FluxSource enables Flux Kustomization parsing
+	FluxSource string
+
 	// All files referenced directly from within a `kustomization.yaml`
 	referencedFiles map[string]bool
 
@@ -35,10 +38,11 @@ type ReferenceLoader struct {
 	rf *resmap.Factory
 }
 
-func NewReferenceLoader(strictPathCheck bool, excludes ...string) *ReferenceLoader {
+func NewReferenceLoader(strictPathCheck bool, fluxSource string, excludes ...string) *ReferenceLoader {
 	return &ReferenceLoader{
 		Excludes:        excludes,
 		StrictPathCheck: strictPathCheck,
+		FluxSource:      fluxSource,
 		referencedFiles: make(map[string]bool),
 		allResources:    make(map[string]bool),
 		rf:              resmap.NewFactory(provider.NewDepProvider().GetResourceFactory()),
@@ -74,10 +78,10 @@ func hasInlineIgnore(filepath string) bool {
 	return false
 }
 
-func (l *ReferenceLoader) Validate(path string) error {
+func (l *ReferenceLoader) Validate(root string) error {
 	kustomizations := []string{}
 
-	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -90,16 +94,37 @@ func (l *ReferenceLoader) Validate(path string) error {
 
 		if filepath.Base(path) == "kustomization.yaml" {
 			kustomizations = append(kustomizations, path)
+			return nil
+		}
+
+		ext := filepath.Ext(path)
+		if ext != ".yaml" && ext != ".yml" {
+			return nil
+		}
+
+		if l.FluxSource != "" {
+			fluxKustomizations, err := parseFluxKustomizations(path, l.FluxSource)
+			if err != nil {
+				return err
+			}
+
+			for _, kustomization := range fluxKustomizations {
+				// Kustomization path is relative to the source root, not the file location
+				resolvedPath := filepath.Clean(filepath.Join(root, kustomization, "kustomization.yaml"))
+				if _, err := os.Stat(resolvedPath); err == nil {
+					l.referencedFiles[resolvedPath] = true
+				}
+			}
 		}
 
 		return nil
 	})
 	if err != nil {
-		log.Fatal("Failed to find kustomization.yaml files", "path", path, "err", err)
+		log.Fatal("Failed to find kustomization.yaml files", "path", root, "err", err)
 	}
 
 	for _, kustomization := range kustomizations {
-		err := l.walk(path, kustomization)
+		err := l.walk(root, kustomization)
 		if err != nil {
 			return err
 		}

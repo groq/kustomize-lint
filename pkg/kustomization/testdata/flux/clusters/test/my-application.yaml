@@ -1,0 +1,18 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: my-application
+  namespace: flux-system
+spec:
+  interval: 30s
+  retryInterval: 1m
+  timeout: 5m
+  dependsOn:
+    - name: namespaces
+  sourceRef:
+    kind: GitRepository
+    name: gitops
+  path: ./my-application/overlays/test
+  prune: true
+  wait: true
