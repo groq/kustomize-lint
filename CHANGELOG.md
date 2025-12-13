@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/groq/kustomize-lint/compare/v0.5.1...v0.5.2) (2025-12-13)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([#55](https://github.com/groq/kustomize-lint/issues/55)) ([694d156](https://github.com/groq/kustomize-lint/commit/694d156d9dcfe387bb566d74a2ffe454d77b1e02))
+
 ## [0.5.1](https://github.com/groq/kustomize-lint/compare/v0.5.0...v0.5.1) (2025-10-07)
 
 
