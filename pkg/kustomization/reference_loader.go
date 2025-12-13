@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/charmbracelet/log"
@@ -81,6 +82,12 @@ func (l *ReferenceLoader) Validate(path string) error {
 			return err
 		}
 
+		if filepath.Base(path) == ".kustomize-lint-ignore" {
+			log.Debug("Skipping directory due to ignore file", "path", path)
+			l.Excludes = append(l.Excludes, filepath.Join(filepath.Dir(path), "*"))
+			return nil
+		}
+
 		if filepath.Base(path) == "kustomization.yaml" {
 			kustomizations = append(kustomizations, path)
 		}
@@ -102,6 +109,7 @@ func (l *ReferenceLoader) Validate(path string) error {
 
 	log.Debug("All resources", "resources", l.allResources)
 	log.Debug("Referenced files", "files", l.referencedFiles)
+	log.Debug("Kustomizations", "kustomizations", kustomizations)
 
 	for r := range l.referencedFiles {
 		if !l.allResources[r] {
@@ -111,46 +119,78 @@ func (l *ReferenceLoader) Validate(path string) error {
 
 	for r := range l.allResources {
 		if !l.referencedFiles[r] {
-			errs = append(errs, fmt.Errorf("* resource %q not referenced", r))
+			if !slices.Contains(kustomizations, r) {
+				errs = append(errs, fmt.Errorf("* resource %q not referenced", r))
+				continue
+			}
+
+			containedInKustomization := slices.IndexFunc(kustomizations, func(k string) bool {
+				baseDir := filepath.Dir(k)
+				return k != r && strings.HasPrefix(r, baseDir+string(filepath.Separator))
+			})
+
+			if containedInKustomization != -1 {
+				log.Debug(
+					"Resource not referenced",
+					"resource", r,
+					"inKustomization", kustomizations[containedInKustomization],
+				)
+				errs = append(errs, fmt.Errorf("* resource %q not referenced", r))
+			}
 		}
 	}
 
 	return errors.Join(errs...)
 }
 
+func (l *ReferenceLoader) excludedPath(baseDir, path string) bool {
+	for _, exclude := range l.Excludes {
+		if relativePath, err := filepath.Rel(baseDir, path); err == nil {
+			if matched, _ := filepath.Match(exclude, relativePath); matched {
+				log.Debug("Skipping path", "path", path, "exclude", exclude)
+				return true
+			}
+		}
+
+		if matched, _ := filepath.Match(exclude, path); matched {
+			log.Debug("Skipping path", "path", path, "exclude", exclude)
+			return true
+		}
+
+		if matched, _ := filepath.Match(exclude, filepath.Base(path)); matched {
+			log.Debug("Skipping path", "path", path, "exclude", exclude)
+			return true
+		}
+	}
+
+	if hasInlineIgnore(path) {
+		log.Debug("Skipping path due to inline ignore", "path", path)
+		return true
+	}
+
+	return false
+}
+
 func (l *ReferenceLoader) walk(baseDir, path string) error {
 	dir := filepath.Dir(path)
 
-	l.referencedFiles[path] = true
+	if l.excludedPath(baseDir, path) {
+		log.Debug("Skipping path due to exclusion", "path", path)
+		return nil
+	}
 
 	log.Debug("Walking directory", "path", dir)
 
 	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return filepath.SkipDir
+		}
+
 		if d.Type().IsDir() {
 			return nil
 		}
 
-		for _, exclude := range l.Excludes {
-			if relativePath, err := filepath.Rel(baseDir, path); err == nil {
-				if matched, _ := filepath.Match(exclude, relativePath); matched {
-					log.Debug("Skipping path", "path", path, "exclude", exclude)
-					return nil
-				}
-			}
-
-			if matched, _ := filepath.Match(exclude, path); matched {
-				log.Debug("Skipping path", "path", path, "exclude", exclude)
-				return nil
-			}
-
-			if matched, _ := filepath.Match(exclude, filepath.Base(path)); matched {
-				log.Debug("Skipping path", "path", path, "exclude", exclude)
-				return nil
-			}
-		}
-
-		if hasInlineIgnore(path) {
-			log.Debug("Skipping path due to inline ignore", "path", path)
+		if l.excludedPath(baseDir, path) {
 			return nil
 		}
 
@@ -166,6 +206,7 @@ func (l *ReferenceLoader) walk(baseDir, path string) error {
 
 	k := &types.Kustomization{}
 
+	// #nosec G304 - filepath is controlled by the application's file walking logic
 	contents, err := os.ReadFile(path)
 	if err != nil {
 		return fmt.Errorf("failed to read %q: %v", path, err)
@@ -241,6 +282,8 @@ func (l *ReferenceLoader) walk(baseDir, path string) error {
 				if l.referencedFiles[p] {
 					continue
 				}
+
+				l.referencedFiles[p] = true
 
 				err := l.walk(baseDir, p)
 				if err != nil {
