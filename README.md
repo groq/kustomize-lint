@@ -135,6 +135,15 @@ $ touch ignored_dir/.kustomize-lint-ignore
 
 To workaround [kubernetes/kustomize#5979](https://github.com/kubernetes-sigs/kustomize/issues/5979), the `--strict-path-check` (`-s`) flag will fail if a file reference does not match the output of [`filepath.Clean`](https://pkg.go.dev/path/filepath#Clean).
 
+#### Flux Kustomization references
+
+For complex gitops repositories where the unreferenced directories linter may otherwise cause false-positives, Flux [Kustomizations](https://fluxcd.io/flux/components/kustomize/kustomizations/) can be parsed and, if the `sourceRef` matches, considered as a valid reference.
+
+Pass the `--flux-source` flag with the source name of the root repository to enable this feature.
+```sh
+$ kustomize-lint lint --flux-source gitops path/to/root
+```
+
 #### Debugging
 
 To output more information, provide the `--debug` flag:
