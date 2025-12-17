@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.0.0](https://github.com/groq/kustomize-lint/compare/v0.5.1...v1.0.0) (2025-12-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* fail on unreferenced subdirectories in kustomizations ([#57](https://github.com/groq/kustomize-lint/issues/57))
+
+### Features
+
+* allow parsing of flux Kustomization files for references ([#58](https://github.com/groq/kustomize-lint/issues/58)) ([a0c8ff1](https://github.com/groq/kustomize-lint/commit/a0c8ff1c254e0ab749fa3116ae4e6416740dc1be))
+* fail on unreferenced subdirectories in kustomizations ([#57](https://github.com/groq/kustomize-lint/issues/57)) ([a257d0e](https://github.com/groq/kustomize-lint/commit/a257d0e378ff17ad93d03840550458741d689b9e))
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([#55](https://github.com/groq/kustomize-lint/issues/55)) ([694d156](https://github.com/groq/kustomize-lint/commit/694d156d9dcfe387bb566d74a2ffe454d77b1e02))
+* **deps:** update module k8s.io/apimachinery to v0.34.3 ([#59](https://github.com/groq/kustomize-lint/issues/59)) ([07fe77e](https://github.com/groq/kustomize-lint/commit/07fe77e3f96e067c52b9fdcfb9fafa3b4fedde92))
+
 ## [0.5.1](https://github.com/groq/kustomize-lint/compare/v0.5.0...v0.5.1) (2025-10-07)
 
 
