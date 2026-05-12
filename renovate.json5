@@ -1,0 +1,10 @@
+// Welcome to Renovate!
+// This default configuration sets up your repository to use Groq's centralised configuration without automerge.
+// Other than the default configuration, you can also extend language-specific configurations.
+// See https://github.com/groq/renovate-config for more details.
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>groq/renovate-config:no-automerge"
+  ]
+}
