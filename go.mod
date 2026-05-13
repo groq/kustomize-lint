@@ -3,7 +3,7 @@ module github.com/groq/kustomize-lint
 go 1.25.0
 
 require (
-	github.com/alecthomas/kong v1.13.0
+	github.com/alecthomas/kong v1.15.0
 	github.com/charmbracelet/log v0.4.2
 	github.com/fluxcd/kustomize-controller/api v1.7.3
 	gopkg.in/yaml.v3 v3.0.1
