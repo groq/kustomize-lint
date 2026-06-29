@@ -24,7 +24,7 @@ jobs:
           ref: ${{ steps.release.outputs.tag_name }}
         if: ${{ steps.release.outputs.release_created }}
 
-      - uses: cashapp/activate-hermit@v1
+      - uses: cashapp/activate-hermit@cea9af7913204a965fd488637a8d1811bba2e616 # v1.1.5
         with:
           cache: "true"
         if: ${{ steps.release.outputs.release_created }}
